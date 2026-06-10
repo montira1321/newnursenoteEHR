@@ -1,0 +1,575 @@
+<!-- Nurse Note – 4-Panel Template Mockup -->
+<!-- จำลองหน้าจอผู้ใช้ (พยาบาล) แบบ 4 panel: Problem | Assessment | Nursing Intervention | Evaluation -->
+<!-- เพิ่มได้ทั้ง "ชุด problem list" (จาก dropdown) และ "รายข้อ" (ปุ่ม + เพิ่มรายข้อ ในแต่ละ panel) -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nurse Note – 4 Panel Template Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1f3a6b;--navy-d:#162a4f;
+    --red:#d32f2f;--blue:#1565d8;--blue-d:#0f4fb0;
+    --ink:#1f2937;--label:#6b7280;
+    --line:#dadde3;--line-soft:#e9ebef;
+    --surface:#fff;--gray:#f4f5f7;--gray-2:#eceef1;--ok:#1f8a4c;
+    --tag-bg:#eef3fb;--tag-fg:#2a5db0;
+    --p-prob:#7b3fb0;--p-prob-bg:#f4eefb;
+    --p-ass:#0f7d8c;--p-ass-bg:#e8f6f7;
+    --p-int:#1565d8;--p-int-bg:#eaf1fd;
+    --p-eval:#1f8a4c;--p-eval-bg:#e9f6ee;
+    --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box}html,body{margin:0}
+  body{font-family:'Sarabun',system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--ink);background:var(--gray);line-height:1.5;font-size:14.5px;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4,.disp{font-family:'IBM Plex Sans Thai','Sarabun',sans-serif}
+
+  .app{max-width:1280px;margin:0 auto;padding:0 0 84px}
+  .topbar{background:var(--navy);color:#fff;display:flex;align-items:center;gap:14px;padding:13px 22px;position:sticky;top:0;z-index:30;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+  .topbar .doc{font-weight:600;font-size:16px}
+  .topbar .crumb{font-size:12px;opacity:.72}
+  .topbar .spacer{flex:1}
+  .topbar .tabset{display:flex;gap:2px;font-size:12px;letter-spacing:.5px;font-weight:600;opacity:.9}
+  .topbar .tabset span{padding:6px 11px;border-radius:5px}
+  .topbar .tabset span.active{background:rgba(255,255,255,.16)}
+
+  .maprow{background:#fff7f6;border-bottom:1px solid #f3d7d4;padding:9px 22px;display:flex;align-items:center;gap:12px;font-size:13px;color:#7a2b27;position:sticky;top:51px;z-index:25}
+  .maprow .sw{margin-left:auto;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;color:var(--ink)}
+  .toggle{width:38px;height:22px;border-radius:11px;background:#cfd4db;position:relative;transition:.18s;flex:none}
+  .toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.18s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+  .toggle.on{background:var(--red)}.toggle.on::after{left:18px}
+
+  .sheet{background:var(--surface);margin:16px;border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+
+  .dochead{padding:20px 26px 8px;border-bottom:1px solid var(--line-soft);text-align:center;position:relative}
+  .dochead .org{font-size:13px;color:var(--label)}
+  .dochead h1{margin:4px 0 2px;font-size:20px;color:var(--navy)}
+  .dochead .sub{font-size:12px;color:var(--label)}
+  .seal{position:absolute;right:24px;top:18px;width:52px;height:52px;border:1.5px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--label);font-size:10px}
+
+  .section{padding:18px 26px}
+  .section+.section{border-top:8px solid var(--gray)}
+  .sec-title{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:15px;color:var(--navy);font-weight:700}
+  .sec-title .n{width:24px;height:24px;border-radius:6px;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:12px;flex:none}
+
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px 16px}
+  .c2{grid-column:span 2}.c3{grid-column:span 3}.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c8{grid-column:span 8}.c12{grid-column:span 12}
+
+  .field{position:relative;padding-top:4px}
+  .field label.flab{display:block;font-size:12px;color:var(--label);margin-bottom:3px}
+  .field label.flab .req{color:var(--red)}
+  .field input[type=text],.field input[type=number],.field input[type=date],.field input[type=time],.field input[type=datetime-local],.field select,.field textarea{width:100%;border:none;border-bottom:1.5px solid var(--line);background:var(--gray);padding:9px 10px;font:inherit;color:var(--ink);border-radius:4px 4px 0 0;outline:none;transition:border-color .15s,background .15s}
+  .field textarea{resize:vertical;min-height:54px}
+  .field input:focus,.field select:focus,.field textarea:focus{border-bottom-color:var(--red);background:#fff}
+  .field input::placeholder{color:#aab0ba}
+
+  .dx-card{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px;background:#fff}
+  .dx-head{display:flex;align-items:center;gap:12px;padding:11px 14px;background:linear-gradient(0deg,#fafbfc,#fff);border-bottom:1px solid var(--line-soft);cursor:pointer}
+  .dx-head .pill{background:var(--navy);color:#fff;font-size:12px;font-weight:700;border-radius:6px;padding:3px 9px;flex:none}
+  .dx-head .nm{font-weight:600;font-size:15px}
+  .dx-head .chev{margin-left:auto;color:var(--label);transition:transform .2s}
+  .dx-card.collapsed .chev{transform:rotate(-90deg)}
+  .dx-card.collapsed .panels-scroll{display:none}
+  .dx-rm{border:none;background:#fbeaea;color:var(--red);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:15px;flex:none}
+
+  .panels-scroll{overflow-x:auto}
+  .panels{display:grid;grid-template-columns:0.9fr 1.1fr 1.1fr 1.1fr;min-width:920px}
+  .panel{border-right:1px solid var(--line-soft);display:flex;flex-direction:column;min-width:0}
+  .panel:last-child{border-right:none}
+  .panel .phead{padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+  .panel .phead .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .panel.prob .phead{background:var(--p-prob-bg);color:var(--p-prob)} .panel.prob .dot{background:var(--p-prob)}
+  .panel.ass  .phead{background:var(--p-ass-bg); color:var(--p-ass)}  .panel.ass .dot{background:var(--p-ass)}
+  .panel.int  .phead{background:var(--p-int-bg); color:var(--p-int)}  .panel.int .dot{background:var(--p-int)}
+  .panel.eval .phead{background:var(--p-eval-bg);color:var(--p-eval)} .panel.eval .dot{background:var(--p-eval)}
+  .pbody{padding:11px 12px;overflow-y:auto;max-height:460px;flex:1}
+  .prob-statement{font-size:13.5px;font-weight:600;color:var(--ink);background:var(--p-prob-bg);border-left:3px solid var(--p-prob);padding:7px 9px;border-radius:0 6px 6px 0;margin-bottom:10px}
+
+  .opt-list{display:flex;flex-direction:column;gap:8px}
+  .opt{display:flex;align-items:flex-start;gap:8px;font-size:14px}
+  .opt input[type=checkbox],.opt input[type=radio]{margin:3px 0 0;width:16px;height:16px;accent-color:var(--red);flex:none;cursor:pointer}
+  .opt label{cursor:pointer}
+  .opt .inline-in{flex:1;min-width:60px}
+  .opt .inline-in input{border:none;border-bottom:1px dotted #9aa1ad;background:transparent;padding:1px 3px;font:inherit;width:100%;color:var(--ink)}
+  .opt .inline-in input:disabled{border-bottom-color:var(--line);background:transparent}
+  .opt .inline-in input:focus{border-bottom:1.5px solid var(--red);outline:none}
+  .opt.custom{background:#fffdf3;border:1px dashed #e7d9a6;border-radius:6px;padding:6px 8px}
+  .opt .rm-row{border:none;background:transparent;color:#bbb;cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
+  .opt .rm-row:hover{color:var(--red)}
+  .radio-inline{display:flex;flex-wrap:wrap;gap:5px 14px;align-items:center}
+  .radio-inline .opt{flex:none}
+  .grp-label{font-size:12.5px;color:var(--label);margin-bottom:4px}
+  .subhead{font-weight:600;font-size:13px;color:var(--ink);margin:8px 0 2px}
+
+  .vitals{background:var(--gray);border:1px solid var(--line-soft);border-radius:8px;padding:10px;margin:4px 0}
+  .vitals .vg{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+  .vitals .vlabel{font-size:10.5px;color:var(--label);margin-bottom:1px;display:block}
+  .vitals .vin{position:relative}
+  .vitals input{width:100%;border:none;border-bottom:1.5px solid var(--line);background:#fff;padding:5px 28px 5px 7px;font:inherit;border-radius:4px 4px 0 0;outline:none}
+  .vitals input:focus{border-bottom-color:var(--red)}
+  .vitals .u{position:absolute;right:7px;bottom:5px;font-size:10px;color:var(--label)}
+
+  .pnote textarea{width:100%;border:1px solid var(--line);background:var(--gray);border-radius:6px;padding:7px;font:inherit;resize:vertical;min-height:46px;outline:none}
+  .pnote textarea:focus{border-color:var(--red);background:#fff}
+  .pnote .grp-label{margin-top:6px}
+
+  .additem{margin-top:10px;border-top:1px dashed var(--line);padding-top:9px}
+  .add-btn{border:1px dashed var(--navy);color:var(--navy);background:#fff;border-radius:7px;padding:6px 11px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;width:100%}
+  .add-btn:hover{background:#f3f6fc}
+  .composer{margin-top:8px;display:none;flex-direction:column;gap:7px;background:var(--gray);border:1px solid var(--line-soft);border-radius:7px;padding:9px}
+  .composer.show{display:flex}
+  .composer input.ci-label{border:none;border-bottom:1.5px solid var(--line);background:#fff;padding:6px 8px;font:inherit;border-radius:4px 4px 0 0;outline:none}
+  .composer input.ci-label:focus{border-bottom-color:var(--red)}
+  .composer .crow{display:flex;align-items:center;gap:8px;font-size:12.5px;flex-wrap:wrap}
+  .composer .crow label{display:flex;align-items:center;gap:5px;color:var(--label)}
+  .composer .cbtns{display:flex;gap:6px;margin-left:auto}
+  .composer .cbtns button{font:inherit;font-size:12.5px;border-radius:6px;padding:5px 12px;cursor:pointer;border:none}
+  .composer .ci-add{background:var(--navy);color:#fff}
+  .composer .ci-cancel{background:#fff;border:1px solid var(--line);color:var(--label)}
+
+  .adder{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+  .adder .field{flex:1;min-width:240px}
+  .btn{border:none;border-radius:7px;padding:10px 18px;font:inherit;font-weight:600;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:7px}
+  .btn:active{transform:translateY(1px)}
+  .btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:var(--blue-d)}
+  .btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy-d)}
+  .btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#b22}
+  .btn-ghost{background:#fff;color:var(--navy);border:1.5px solid var(--line)}.btn-ghost:hover{border-color:var(--navy)}
+
+  .signature-wrap{display:inline-block}
+  .sigpad{border:1.5px dashed var(--line);border-radius:8px;background:#fff;touch-action:none;display:block;cursor:crosshair}
+  .sigbar{display:flex;gap:8px;margin-top:6px}
+  .sigbar button{font-size:12.5px;padding:5px 12px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;color:var(--label)}
+
+  .actionbar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 26px;display:flex;gap:10px;justify-content:flex-end;z-index:20;box-shadow:0 -2px 10px rgba(0,0,0,.04)}
+  .actionbar .left{margin-right:auto;font-size:12.5px;color:var(--label);align-self:center}
+
+  .itag{display:none;font-size:10px;font-weight:600;background:var(--tag-bg);color:var(--tag-fg);border:1px solid #d6e2f5;border-radius:5px;padding:1px 5px;letter-spacing:.2px;white-space:nowrap;font-family:'Sarabun',sans-serif}
+  body.show-map .itag{display:inline-block}
+  body.show-map .pbody .opt-list>*,body.show-map .vitals,body.show-map .pnote{outline:1px dashed #c9d6ec;outline-offset:2px;border-radius:5px}
+
+  .modal{position:fixed;inset:0;background:rgba(20,28,45,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+  .modal.show{display:flex}
+  .modal .box{background:#fff;border-radius:12px;max-width:760px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .modal .mhead{position:sticky;top:0;background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+  .modal .mhead .x{cursor:pointer;font-size:20px;opacity:.85}
+  .modal .mbody{padding:18px 22px;font-size:14px}
+  .pv-dx{margin-bottom:18px;border:1px solid var(--line-soft);border-radius:10px;overflow:hidden}
+  .pv-dx h4{margin:0;color:#fff;background:var(--navy);font-size:14px;padding:8px 12px}
+  .pv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line-soft)}
+  .pv-col{background:#fff;padding:9px 11px}
+  .pv-col b{color:var(--label);font-weight:700;font-size:11px;letter-spacing:.3px;display:block;margin-bottom:4px;text-transform:uppercase}
+  .pv-col ul{margin:0;padding-left:16px}.pv-col li{margin:2px 0;font-size:13px}
+  .pv-empty{color:var(--label);font-style:italic;font-size:12.5px}
+
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ok);color:#fff;padding:11px 20px;border-radius:8px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;z-index:60;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:980px){.pv-grid{grid-template-columns:1fr 1fr}}
+  @media (max-width:760px){.grid{gap:12px}.c2,.c3,.c4,.c5,.c6,.c8{grid-column:span 12}.sheet{margin:10px}.topbar .tabset{display:none}.pv-grid{grid-template-columns:1fr}}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  :focus-visible{outline:2px solid var(--red);outline-offset:2px}
+</style>
+
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="crumb">New Document Template ▸ EDIT TEMPLATE</div>
+      <div class="doc">บันทึกทางการพยาบาล – Nursing Diagnosis Note (4 Panel)</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="tabset"><span>PREVIEW SCREEN</span><span class="active">PREVIEW DATA</span><span>SCRIPT</span></div>
+  </div>
+
+  <div class="maprow">
+    <span>โหมดจำลองหน้าจอผู้ใช้งานจริง — กรอกข้อมูลได้ · เพิ่มได้ทั้งชุดและรายข้อ</span>
+    <label class="sw" id="mapToggle"><span>แสดง mapping ของ Input Type</span><span class="toggle" id="tg"></span></label>
+  </div>
+
+  <div class="sheet">
+    <div class="dochead">
+      <div class="seal">ตรา รพ.</div>
+      <div class="org">ฝ่ายการพยาบาล โรงพยาบาล____________</div>
+      <h1>แบบบันทึกข้อวินิจฉัยทางการพยาบาล</h1>
+      <div class="sub">Nursing Diagnosis &amp; Nursing Intervention Record &nbsp;•&nbsp; <span class="itag">[Decoration] Header</span></div>
+    </div>
+
+    <div class="section">
+      <h3 class="sec-title"><span class="n">i</span> ข้อมูลผู้ป่วย / Visit <span class="itag">[Advanced] Inherit Form</span></h3>
+      <div class="grid">
+        <div class="field c3"><label class="flab">HN <span class="req">*</span> <span class="itag">Text Field</span></label><input type="text" placeholder="เลขประจำตัวผู้ป่วย"></div>
+        <div class="field c5"><label class="flab">ชื่อ–สกุล ผู้ป่วย <span class="itag">Autocomplete from Master</span></label><input type="text" list="ptlist" placeholder="พิมพ์เพื่อค้นหาจากทะเบียนผู้ป่วย"><datalist id="ptlist"><option value="นาย สมชาย ใจดี (HN 64-001234)"></option><option value="นาง มาลี ผ่องใส (HN 65-098765)"></option></datalist></div>
+        <div class="field c4"><label class="flab">หอผู้ป่วย / Ward <span class="itag">Select Dropdown</span></label><select><option value="">— เลือกหอผู้ป่วย —</option><option>อายุรกรรมชาย 1</option><option>อายุรกรรมหญิง 2</option><option>ศัลยกรรม 3</option><option>ICU อายุรกรรม</option><option>ICU ศัลยกรรม</option></select></div>
+        <div class="field c2"><label class="flab">เตียง <span class="itag">Text Field</span></label><input type="text" placeholder="12/2"></div>
+        <div class="field c4"><label class="flab">วันที่–เวลา ที่บันทึก <span class="itag">Text Date &amp; Time Picker</span></label><input type="datetime-local"></div>
+        <div class="field c3"><label class="flab">เวร <span class="itag">Radio Buttons Inline</span></label><div class="radio-inline" style="padding-top:6px"><span class="opt"><input type="radio" name="shift" id="s1"><label for="s1">เช้า</label></span><span class="opt"><input type="radio" name="shift" id="s2"><label for="s2">บ่าย</label></span><span class="opt"><input type="radio" name="shift" id="s3"><label for="s3">ดึก</label></span></div></div>
+        <div class="field c5"><label class="flab">การวินิจฉัยโรค / Diagnosis (แพทย์) <span class="itag">Text Area</span></label><input type="text" placeholder="เช่น Post-op exploratory laparotomy"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="sec-title"><span class="n">1</span> ข้อวินิจฉัยทางการพยาบาล — มุมมอง 4 panel</h3>
+      <div class="adder">
+        <div class="field"><label class="flab">เพิ่ม "ชุด" ข้อวินิจฉัย (Problem List) จากชุดมาตรฐาน <span class="itag">Autocomplete from Master</span></label>
+          <select id="dxSelect"><option value="">— ค้นหา / เลือกข้อวินิจฉัยทางการพยาบาล —</option></select></div>
+        <button class="btn btn-navy" id="addDx">+ เพิ่มทั้งชุด</button>
+      </div>
+      <div id="dxContainer" style="margin-top:16px"></div>
+      <p id="dxEmpty" class="pv-empty" style="margin-top:14px">ยังไม่ได้เลือกข้อวินิจฉัย — เลือกจากรายการด้านบนเพื่อให้ระบบดึงชุด Problem / Assessment / Intervention / Evaluation มาวางเป็น 4 panel ให้อัตโนมัติ จากนั้นเพิ่ม "รายข้อ" เองได้ในแต่ละ panel</p>
+    </div>
+
+    <div class="section">
+      <h3 class="sec-title"><span class="n">2</span> เอกสารแนบ &amp; การลงนาม</h3>
+      <div class="grid">
+        <div class="field c6"><label class="flab">แนบไฟล์/รูปภาพ (ภาพแผล, ผล Lab) <span class="itag">File Upload</span></label><input type="file" multiple style="border:1.5px dashed var(--line);background:var(--gray);padding:10px;width:100%;border-radius:6px"></div>
+        <div class="field c6"><label class="flab">ผู้บันทึก / พยาบาลเจ้าของไข้ <span class="itag">Autocomplete from Master</span></label><input type="text" placeholder="ค้นหาชื่อพยาบาลจากทะเบียนเจ้าหน้าที่"></div>
+        <div class="c6"><label class="flab" style="font-size:12px;color:var(--label);display:block;margin-bottom:4px">ลายเซ็นผู้บันทึก <span class="itag">Signature Pad</span></label>
+          <div class="signature-wrap"><canvas id="sig" class="sigpad" width="380" height="120"></canvas><div class="sigbar"><button type="button" id="sigClear">ล้างลายเซ็น</button><span style="font-size:12px;color:var(--label);align-self:center">เซ็นด้วยเมาส์/นิ้วในกรอบ</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actionbar">
+    <span class="left" id="dxCount">0 ข้อวินิจฉัย</span>
+    <button class="btn btn-ghost" id="previewBtn">PREVIEW DATA</button>
+    <button class="btn btn-blue" id="saveBtn">บันทึก</button>
+    <button class="btn btn-red" id="cancelBtn">ยกเลิก</button>
+  </div>
+</div>
+
+<div class="modal" id="modal"><div class="box"><div class="mhead"><b>ตัวอย่างข้อมูลที่ระบบจัดเก็บ (PREVIEW DATA)</b><span class="x" id="modalX">×</span></div><div class="mbody" id="pvBody"></div></div></div>
+<div class="toast" id="toast">บันทึกแบบฟอร์มเรียบร้อย ✓</div>
+
+<script>
+const VITALS={t:'vitals'};
+const VS_NORMAL={t:'radio',label:'Vital signs และ SpO₂',opts:['อยู่ในเกณฑ์ปกติ','ไม่อยู่ในเกณฑ์ปกติ (ระบุ)'],specifyOn:1};
+
+const DIAGNOSES=[
+ {id:'swi',no:1,title:'Surgical Wound Infection',
+  problem:[
+    {t:'note',label:'related to / as evidenced by (ระบุ)'},
+    {t:'check',label:'Prolonged duration of surgical procedure'},
+    {t:'check_text',label:'Invasive procedure (ระบุ)'},
+    {t:'check_text',label:'Prosthesis / Surgical implant (ระบุ)'},
+    {t:'check',label:'Surgical wound contamination'},
+    {t:'check',label:'Infection at other surgical sites'},
+    {t:'check',label:'Immunocompromised host'},
+    {t:'check',label:'Immunosuppression'},
+    {t:'check_text',label:'Other'} ],
+  assessment:[ VS_NORMAL,VITALS,
+    {t:'subhead',label:'Skin integrity'},
+    {t:'check_text',label:'Wound at (ระบุตำแหน่ง)'},
+    {t:'check_text',label:'Surgical site'},
+    {t:'check_text',label:'Exit / Insertion site'},
+    {t:'check_text',label:'Signs &amp; symptoms of infection'},
+    {t:'subhead',label:'ผล Lab และผลตรวจอื่นๆ'},
+    {t:'check_text',label:'ผลเพาะเชื้อ (culture)'},
+    {t:'check_text',label:'CBC'},{t:'check_text',label:'ANC'} ],
+  intervention:[
+    {t:'check',label:'Assess, record, and monitor V/S and SpO₂'},
+    {t:'check',label:'Assess &amp; monitor signs/symptoms of infection'},
+    {t:'check_text',label:'Administer medication as ordered (ระบุ)'},
+    {t:'check_text',label:'Administer IV fluids as ordered (ระบุ)'},
+    {t:'check_text',label:'NPO as ordered at (เวลา)'},
+    {t:'check',label:'Skin / Bowel preparation as ordered'},
+    {t:'check',label:'Provide nursing care according to SSI Bundle'},
+    {t:'check',label:'Dressing the wound'},
+    {t:'check',label:'Provide standard precautions'},
+    {t:'check',label:'Educate patient/caregiver on surgical wound care'},
+    {t:'check_text',label:'Consult แพทย์เฉพาะทาง/ทีมสหวิชาชีพ (ระบุ)'},
+    {t:'check_text',label:'Other'} ],
+  evaluation:[ VS_NORMAL,VITALS,
+    {t:'yesno',label:'ได้รับยาตามแผนการรักษา : Side effect'},
+    {t:'yesno',label:'Complication จากยา/สารน้ำ'},
+    {t:'check_text',label:'The appearance of the wound (ระบุ)'},
+    {t:'check_text',label:'The appearance of the drain (ระบุ)'},
+    {t:'yesno',label:'Signs &amp; symptoms of infection'},
+    {t:'check_text',label:'Transfer to OR at (เวลา)'},
+    {t:'check_text',label:'Other'} ]},
+
+ {id:'airway',no:2,title:'Ineffective Airway Clearance',
+  problem:[
+    {t:'note',label:'related to / as evidenced by (ระบุ)'},
+    {t:'subhead',label:'Ineffective breathing pattern'},
+    {t:'check',label:'Dyspnea'},{t:'check',label:'Orthopnea'},
+    {t:'check',label:'Tachypnea'},{t:'check',label:'Nasal flaring (หายใจจมูกบาน)'},
+    {t:'check',label:'Use of accessory muscles to breathe'},
+    {t:'check_text',label:'Other'} ],
+  assessment:[ VS_NORMAL,VITALS,
+    {t:'subhead',label:'Lung sound'},
+    {t:'check',label:'Wheezing'},{t:'check',label:'Rhonchi'},
+    {t:'check',label:'Crepitation'},{t:'check',label:'Secretion sound'},
+    {t:'radio',label:'Sedation score',opts:['1: ตื่นเต็มที่','2: ง่วงหลับบ้าง','3: ปลุกตื่นยาก','4: หลับลึก']},
+    {t:'check_text',label:'Other'} ],
+  intervention:[
+    {t:'check',label:'Assess, record, and monitor V/S and SpO₂'},
+    {t:'check',label:'Assess &amp; monitor lung sounds and respiratory status'},
+    {t:'check_text',label:'Provide low-flow oxygen therapy (ระบุ)'},
+    {t:'check_text',label:'Provide high-flow oxygen therapy (ระบุ)'},
+    {t:'check_text',label:'Provide NIV settings as ordered (ระบุ)'},
+    {t:'check',label:'Administer aerosol therapy (SVN / Hypertonic saline)'},
+    {t:'check',label:'Lung expansion therapy (Triflo / EzPAP / Acapella)'},
+    {t:'check',label:'Suction secretion as needed'},
+    {t:'check_text',label:'Consult ทีมสหวิชาชีพ (ระบุ)'},
+    {t:'check_text',label:'Other'} ],
+  evaluation:[ VS_NORMAL,VITALS,
+    {t:'check_text',label:'RASS score (คะแนน)'},
+    {t:'radio',label:'Breathing pattern',opts:['Normal','Abnormal'],specifyOn:1},
+    {t:'check_text',label:'Lung sound after intervention (ระบุ)'},
+    {t:'yesno',label:'ได้รับยาตามแผนการรักษา : Side effect'},
+    {t:'check_text',label:'Other'} ]},
+
+ {id:'bleeding',no:4,title:'Bleeding',
+  problem:[
+    {t:'note',label:'related to / as evidenced by (ระบุ)'},
+    {t:'check_text',label:'Surgical / post-op bleeding ตำแหน่ง (ระบุ)'},
+    {t:'check',label:'Coagulopathy'},
+    {t:'check_text',label:'Anticoagulant / antiplatelet use (ระบุ)'},
+    {t:'check',label:'Thrombocytopenia'},
+    {t:'check_text',label:'Other'} ],
+  assessment:[ VS_NORMAL,VITALS,
+    {t:'check_text',label:'Active bleeding ตำแหน่ง (ระบุ)'},
+    {t:'check_text',label:'Drain content / amount (ระบุ)'},
+    {t:'check',label:'Pale / cold clammy skin'},
+    {t:'check_text',label:'ผล Lab : Hb/Hct/Platelet/PT-PTT (ระบุ)'} ],
+  intervention:[
+    {t:'check',label:'Assess, record, and monitor V/S and SpO₂'},
+    {t:'check',label:'Monitor signs of hypovolemia / bleeding'},
+    {t:'check_text',label:'Administer blood / blood components (ระบุ)'},
+    {t:'check_text',label:'Apply pressure / position to control bleeding (ระบุ)'},
+    {t:'check_text',label:'Notify แพทย์เมื่อพบความผิดปกติ (ระบุ)'},
+    {t:'check_text',label:'Other'} ],
+  evaluation:[ VS_NORMAL,VITALS,
+    {t:'yesno',label:'Bleeding controlled'},
+    {t:'check_text',label:'Hb/Hct หลังให้เลือด (ระบุ)'},
+    {t:'check_text',label:'Other'} ]},
+
+ {id:'htn',no:8,title:'Hypertension',
+  problem:[
+    {t:'note',label:'related to / as evidenced by (ระบุ)'},
+    {t:'check_text',label:'Underlying disease (ระบุ)'},
+    {t:'check_text',label:'Adverse effect of medication (ระบุ)'},
+    {t:'check',label:'Cardiac dysrhythmia'},
+    {t:'check',label:'Increased intracranial pressure'},
+    {t:'check',label:'Sympathetic responses'},
+    {t:'check_text',label:'Other'} ],
+  assessment:[ VS_NORMAL,VITALS,
+    {t:'check',label:'Irregular heartbeats'},
+    {t:'check',label:'Signs &amp; symptoms of hypertension'},
+    {t:'check_text',label:'ปวดศีรษะ/ตาพร่ามัว/คลื่นไส้ (ระบุ)'} ],
+  intervention:[
+    {t:'check',label:'Assess, record, and monitor V/S and SpO₂'},
+    {t:'check_text',label:'Keep BP / SBP / MAP = … as ordered (ระบุ)'},
+    {t:'check_text',label:'Administer medication as ordered (ระบุ)'},
+    {t:'check',label:'Monitor signs of hypo/hypertension'},
+    {t:'check',label:'Ensure proper positioning &amp; restful surroundings'},
+    {t:'check',label:'ให้คำแนะนำลดความดันโลหิต / low salt diet'},
+    {t:'check_text',label:'Notify แพทย์/RRT เมื่อพบความผิดปกติ (ระบุ)'},
+    {t:'check_text',label:'Other'} ],
+  evaluation:[ VS_NORMAL,VITALS,
+    {t:'check_text',label:'REWs/PREWs (คะแนน)'},
+    {t:'radio',label:'Level of consciousness',opts:['ดีขึ้น','คงเดิม','แย่ลง']},
+    {t:'yesno',label:'Signs &amp; symptoms of hypertension'},
+    {t:'check_text',label:'Intake/Output …/… ml in … hr (ระบุ)'},
+    {t:'check_text',label:'Other'} ]},
+
+ {id:'consti',no:9,title:'Constipation',
+  problem:[
+    {t:'note',label:'related to / as evidenced by (ระบุ)'},
+    {t:'check',label:'รับประทานกากใยน้อย / ดื่มน้ำน้อย'},
+    {t:'check_text',label:'Adverse drug reaction เช่น opioids (ระบุ)'},
+    {t:'check',label:'Impaired physical mobility'},
+    {t:'check',label:'ผู้สูงอายุ / Frail elderly syndrome'},
+    {t:'check',label:'อยู่ระหว่างการตั้งครรภ์'},
+    {t:'radio',label:'มีประวัติเจ็บป่วย',opts:['เบาหวาน','ระบบประสาท','ทางเดินอาหาร','Hemorrhoids','อื่นๆ'],specifyOn:4},
+    {t:'check',label:'มีข้อจำกัด เช่น ห้ามเบ่งถ่าย'},
+    {t:'check_text',label:'Other'} ],
+  assessment:[
+    {t:'check',label:'ถ่ายอุจจาระน้อยกว่า 3 ครั้ง/สัปดาห์'},
+    {t:'check_text',label:'ไม่ถ่าย stool ติดต่อกัน (ระบุจำนวนวัน)'},
+    {t:'check',label:'ต้องเบ่งถ่ายมากกว่าปกติ / อุจจาระก้อนแข็ง'},
+    {t:'check',label:'รู้สึกถ่ายไม่สุด'},
+    {t:'check',label:'ปวดแน่นท้อง / คลื่นไส้อาเจียน'},
+    {t:'check',label:'X-ray พบ feces impact'},
+    {t:'check',label:'คลำพบก้อนบริเวณท้อง'} ],
+  intervention:[
+    {t:'check',label:'Monitor signs/symptoms of constipation &amp; bowel sounds'},
+    {t:'check_text',label:'Administer medication / laxative as ordered (ระบุ)'},
+    {t:'check',label:'Promote high-fiber foods &amp; oral fluid intake'},
+    {t:'check',label:'Encourage early ambulation / abdominal massage'},
+    {t:'check',label:'Implement routine toilet training'},
+    {t:'check',label:'Perform fecal evacuation / enema as ordered'},
+    {t:'check_text',label:'ให้คำแนะนำการจัดการความเครียด (ระบุ)'},
+    {t:'check_text',label:'Other'} ],
+  evaluation:[
+    {t:'radio',label:'ถ่าย stool ลักษณะ',opts:['soft','hard','watery','อื่นๆ'],specifyOn:3},
+    {t:'radio',label:'Bowel sound movements',opts:['normal','abnormal']},
+    {t:'yesno',label:'Abdominal pain'},
+    {t:'radio',label:'ความสุขสบาย',opts:['Comfortable','Discomfortable'],specifyOn:1},
+    {t:'check_text',label:'Other'} ]},
+];
+
+let uid=0; const nid=()=>'f'+(++uid);
+function escHTML(s){return String(s).replace(/&(?!amp;|lt;|gt;|#)/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function vitalsBlock(){
+  const f=[['BT','°C'],['RR','/min'],['SpO₂','%'],['HR','/min'],['PR','/min'],['BP','mmHg'],['MAP',''],['ABP','mmHg']];
+  return `<div class="vitals"><div class="vg">`+
+    f.map(([n,u])=>`<div class="vin"><span class="vlabel">${n}</span><input type="text" data-vital="${n}" placeholder="–"><span class="u">${u}</span></div>`).join('')+
+    `</div><div style="margin-top:4px"><span class="itag">Table (กลุ่ม Text Field)</span></div></div>`;
+}
+function checkRow(label,custom){
+  const id=nid();
+  const rm=custom?`<button class="rm-row" data-rm-row title="ลบ">×</button>`:'';
+  const tag=custom?`<span class="itag">Checkbox (เพิ่มรายข้อ)</span>`:`<span class="itag">Checkbox</span>`;
+  return `<div class="opt ${custom?'custom':''}"><input type="checkbox" id="${id}" data-cap="${label}"><label for="${id}">${label} ${tag}</label>${rm}</div>`;
+}
+function checkTextRow(label,custom){
+  const id=nid(),tid=nid();
+  const rm=custom?`<button class="rm-row" data-rm-row title="ลบ">×</button>`:'';
+  const tag=custom?`<span class="itag">Checkbox + Text (เพิ่มรายข้อ)</span>`:`<span class="itag">Checkbox + Text Field</span>`;
+  return `<div class="opt ${custom?'custom':''}"><input type="checkbox" id="${id}" data-cap="${label}" data-reveal="${tid}"><label for="${id}">${label} ${tag}</label><span class="inline-in"><input type="text" id="${tid}" disabled placeholder="ระบุ……"></span>${rm}</div>`;
+}
+function renderItem(it){
+  if(it.t==='vitals') return vitalsBlock();
+  if(it.t==='subhead') return `<div class="subhead">${it.label} <span class="itag">[Decoration] Separator</span></div>`;
+  if(it.t==='note') return `<div class="pnote"><div class="grp-label">${it.label} <span class="itag">Text Area</span></div><textarea data-note="${it.label}" placeholder="related to……"></textarea></div>`;
+  if(it.t==='check') return checkRow(it.label,false);
+  if(it.t==='check_text') return checkTextRow(it.label,false);
+  if(it.t==='radio'){
+    const gid='g'+(++uid),sid=nid();
+    const opts=it.opts.map((o,i)=>{const rid=nid();const rev=(it.specifyOn===i)?` data-reveal="${sid}"`:'';return `<span class="opt"><input type="radio" name="${gid}" id="${rid}" data-cap="${it.label}=${o}"${rev}><label for="${rid}">${o}</label></span>`;}).join('');
+    const sp=(it.specifyOn!=null)?`<span class="inline-in" style="max-width:160px"><input type="text" id="${sid}" disabled placeholder="ระบุ……"></span>`:'';
+    return `<div><div class="grp-label">${it.label} <span class="itag">Radio Buttons Inline</span></div><div class="radio-inline">${opts}${sp}</div></div>`;
+  }
+  if(it.t==='yesno'){
+    const gid='g'+(++uid),sid=nid(),y=nid(),n=nid();
+    return `<div><div class="grp-label">${it.label} <span class="itag">Radio Inline + Text</span></div><div class="radio-inline">
+      <span class="opt"><input type="radio" name="${gid}" id="${y}" data-reveal="${sid}" data-cap="${it.label} = Yes"><label for="${y}">Yes</label></span>
+      <span class="inline-in" style="max-width:150px"><input type="text" id="${sid}" disabled placeholder="ระบุ……"></span>
+      <span class="opt"><input type="radio" name="${gid}" id="${n}" data-cap="${it.label} = No"><label for="${n}">No</label></span></div></div>`;
+  }
+  return '';
+}
+function panelHTML(cls,title,items,statement){
+  const head=`<div class="phead"><span class="dot"></span>${title}</div>`;
+  const stmt=statement?`<div class="prob-statement">${statement}</div>`:'';
+  const body=items.map(renderItem).join('');
+  const add=`<div class="additem">
+      <button class="add-btn" data-additem>+ เพิ่มรายข้อ</button>
+      <div class="composer">
+        <input type="text" class="ci-label" placeholder="พิมพ์ข้อความรายการใหม่…">
+        <div class="crow"><label><input type="checkbox" class="ci-text"> มีช่อง "ระบุ"</label>
+          <span class="cbtns"><button class="ci-cancel" data-ci-cancel>ยกเลิก</button><button class="ci-add" data-ci-add>เพิ่ม</button></span></div>
+      </div></div>`;
+  return `<div class="panel ${cls}">${head}<div class="pbody">${stmt}<div class="opt-list">${body}</div>${add}</div></div>`;
+}
+function renderCard(dx){
+  return `<div class="dx-card" data-id="${dx.id}">
+    <div class="dx-head" data-toggle>
+      <span class="pill">#${dx.no}</span><span class="nm">${dx.title}</span>
+      <span class="itag" style="margin-left:6px">[Advanced] Inherit Form (ดึงทั้งชุด)</span>
+      <span class="chev">▾</span>
+      <button class="dx-rm" title="ลบข้อวินิจฉัยนี้" data-rm>×</button>
+    </div>
+    <div class="panels-scroll"><div class="panels">
+      ${panelHTML('prob','Problem',dx.problem,dx.title)}
+      ${panelHTML('ass','Assessment',dx.assessment)}
+      ${panelHTML('int','Nursing Intervention',dx.intervention)}
+      ${panelHTML('eval','Evaluation',dx.evaluation)}
+    </div></div>
+  </div>`;
+}
+
+const dxSelect=document.getElementById('dxSelect');
+DIAGNOSES.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=`${d.no}. ${d.title}`;dxSelect.appendChild(o);});
+
+const container=document.getElementById('dxContainer'),empty=document.getElementById('dxEmpty');
+const added=new Set();
+function refreshEmpty(){empty.style.display=added.size?'none':'block';document.getElementById('dxCount').textContent=`${added.size} ข้อวินิจฉัย`;}
+
+document.getElementById('addDx').addEventListener('click',()=>{
+  const id=dxSelect.value;
+  if(!id){flash('เลือกข้อวินิจฉัยก่อน');return;}
+  if(added.has(id)){flash('เพิ่มชุดนี้แล้ว');return;}
+  container.insertAdjacentHTML('beforeend',renderCard(DIAGNOSES.find(d=>d.id===id)));
+  added.add(id);dxSelect.value='';refreshEmpty();
+});
+
+container.addEventListener('click',e=>{
+  if(e.target.closest('[data-rm]')){const card=e.target.closest('.dx-card');added.delete(card.dataset.id);card.remove();refreshEmpty();e.stopPropagation();return;}
+  if(e.target.closest('[data-rm-row]')){e.target.closest('.opt').remove();return;}
+  if(e.target.closest('[data-additem]')){const ai=e.target.closest('.additem');ai.querySelector('.composer').classList.toggle('show');const inp=ai.querySelector('.ci-label');if(inp)setTimeout(()=>inp.focus(),0);return;}
+  if(e.target.closest('[data-ci-cancel]')){e.target.closest('.composer').classList.remove('show');return;}
+  if(e.target.closest('[data-ci-add]')){
+    const comp=e.target.closest('.composer');
+    const label=comp.querySelector('.ci-label').value.trim();
+    const withText=comp.querySelector('.ci-text').checked;
+    if(!label){flash('พิมพ์ข้อความก่อน');return;}
+    const list=comp.closest('.pbody').querySelector('.opt-list');
+    list.insertAdjacentHTML('beforeend',withText?checkTextRow(escHTML(label),true):checkRow(escHTML(label),true));
+    comp.querySelector('.ci-label').value='';comp.querySelector('.ci-text').checked=false;comp.classList.remove('show');
+    return;
+  }
+  if(e.target.closest('[data-toggle]')&&!e.target.closest('input')&&!e.target.closest('button'))
+    e.target.closest('.dx-card').classList.toggle('collapsed');
+});
+
+container.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.reveal){const f=document.getElementById(t.dataset.reveal);if(f){f.disabled=!t.checked;if(t.checked)f.focus();}}
+  if(t.type==='radio'){document.querySelectorAll(`input[name="${t.name}"]`).forEach(r=>{if(r.dataset.reveal){const f=document.getElementById(r.dataset.reveal);if(f)f.disabled=!r.checked;}});}
+});
+
+const tg=document.getElementById('tg');
+document.getElementById('mapToggle').addEventListener('click',()=>{document.body.classList.toggle('show-map');tg.classList.toggle('on');});
+
+(function(){const c=document.getElementById('sig'),ctx=c.getContext('2d');ctx.lineWidth=2;ctx.lineCap='round';ctx.strokeStyle='#1f3a6b';let d=false;
+  const pos=e=>{const r=c.getBoundingClientRect();const p=e.touches?e.touches[0]:e;return[p.clientX-r.left,p.clientY-r.top];};
+  const s=e=>{d=true;const[x,y]=pos(e);ctx.beginPath();ctx.moveTo(x,y);e.preventDefault();};
+  const m=e=>{if(!d)return;const[x,y]=pos(e);ctx.lineTo(x,y);ctx.stroke();e.preventDefault();};
+  const en=()=>d=false;
+  c.addEventListener('mousedown',s);c.addEventListener('mousemove',m);window.addEventListener('mouseup',en);
+  c.addEventListener('touchstart',s,{passive:false});c.addEventListener('touchmove',m,{passive:false});c.addEventListener('touchend',en);
+  document.getElementById('sigClear').addEventListener('click',()=>ctx.clearRect(0,0,c.width,c.height));})();
+
+function collectCard(card){
+  const dx=DIAGNOSES.find(d=>d.id===card.dataset.id);
+  const panels=card.querySelectorAll('.panel');
+  const names=['Problem','Assessment','Nursing Intervention','Evaluation'];
+  const out={title:`${dx.no}. ${dx.title}`,cols:[]};
+  panels.forEach((p,i)=>{
+    const picked=[];
+    p.querySelectorAll('textarea[data-note]').forEach(n=>{if(n.value.trim())picked.push('related to: '+n.value.trim());});
+    p.querySelectorAll('input[type=checkbox]:checked,input[type=radio]:checked').forEach(inp=>{
+      let cap=inp.dataset.cap||'';
+      const rev=inp.dataset.reveal&&document.getElementById(inp.dataset.reveal);
+      if(rev&&rev.value.trim())cap+=' '+rev.value.trim();
+      if(cap)picked.push(cap);
+    });
+    p.querySelectorAll('[data-vital]').forEach(v=>{if(v.value.trim())picked.push(`${v.dataset.vital}=${v.value.trim()}`);});
+    out.cols.push({name:names[i],items:picked});
+  });
+  return out;
+}
+document.getElementById('previewBtn').addEventListener('click',()=>{
+  const body=document.getElementById('pvBody');
+  const cards=[...container.querySelectorAll('.dx-card')];
+  if(!cards.length){body.innerHTML='<p class="pv-empty">ยังไม่ได้เลือกข้อวินิจฉัย</p>';}
+  else{body.innerHTML=cards.map(c=>{const d=collectCard(c);
+    const cols=d.cols.map(col=>{const li=col.items.length?`<ul>${col.items.map(x=>`<li>${x}</li>`).join('')}</ul>`:`<span class="pv-empty">— ไม่ได้เลือก —</span>`;return `<div class="pv-col"><b>${col.name}</b>${li}</div>`;}).join('');
+    return `<div class="pv-dx"><h4>${d.title}</h4><div class="pv-grid">${cols}</div></div>`;}).join('');}
+  document.getElementById('modal').classList.add('show');
+});
+document.getElementById('modalX').addEventListener('click',()=>document.getElementById('modal').classList.remove('show'));
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')e.currentTarget.classList.remove('show');});
+
+let toastT;
+function flash(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1800);}
+document.getElementById('saveBtn').addEventListener('click',()=>flash('บันทึกแบบฟอร์มเรียบร้อย ✓'));
+document.getElementById('cancelBtn').addEventListener('click',()=>{if(confirm('ยกเลิกและล้างข้อมูลทั้งหมด?'))location.reload();});
+
+refreshEmpty();
+</script>
